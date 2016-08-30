@@ -179,5 +179,5 @@ void rules() /* Do I even need to comment this? */
 void hanged(uint32_t i)
 {
 	/* MrXedac : better, faster, stronger \o/ */
-	printf("%s", hangedPic[i]);
+	printf("%s", hangedPic[i-1]);
 }
