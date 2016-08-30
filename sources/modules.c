@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h> //uint32_t
-#include <time.h> //srand
-#include <ctype.h> //toupper()
+#include <stdint.h> /* uint32_t */
+#include <time.h> /* srand */
+#include <ctype.h> /* toupper() */
+#include <inttypes.h> /* macros */
 #include "modules.h"
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void comparison(char letter, char word[], char display[], uint32_t length)  //Rolling function comparing the proposed letter to the hidden word
+void comparison(char letter, char word[], char display[], uint32_t length, uint32_t *failed, uint32_t *remaining)  /* Rolling function comparing the proposed letter to the hidden word */
 {
     uint32_t i = 0, j = 0;
 
@@ -17,7 +18,7 @@ void comparison(char letter, char word[], char display[], uint32_t length)  //Ro
     {
         if(letter == word[i])
         {
-            display[i] = letter; //
+            display[i] = letter;
             j++;
         }
     }
@@ -26,13 +27,19 @@ void comparison(char letter, char word[], char display[], uint32_t length)  //Ro
     {
         printf("Good job, you just guessed the letter %c !\n", letter);
     }
+    else
+    {
+        *failed = *failed + 1;
+        *remaining = *remaining - 1;
+
+    }
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void wordSelection(char word[], uint32_t length, uint32_t MIN, uint32_t MAX) //Randomized word picking function from words.hangman
+void wordSelection(char word[], uint32_t length, uint32_t MIN, uint32_t MAX) /* Randomized word picking function from words.hangman */
 {
     uint32_t wordNumber = 0, b = 0, close = 1;
     FILE* wordsList = NULL;
@@ -42,7 +49,7 @@ void wordSelection(char word[], uint32_t length, uint32_t MIN, uint32_t MAX) //R
 
     wordsList = fopen("ressources/words.hangman", "r");
 
-    if(wordsList == NULL) //Routine file opening check
+    if(wordsList == NULL) /* Routine file opening check */
     {
         printf("\n*** Unable to open word list...Exiting. ***\n");
         exit(0);
@@ -50,17 +57,17 @@ void wordSelection(char word[], uint32_t length, uint32_t MIN, uint32_t MAX) //R
 
     rewind(wordsList);
 
-    for(b = 0; b < (wordNumber - 1); b++) //Moving to next '\n'
+    for(b = 0; b < (wordNumber - 1); b++) /* Moving to next '\n' */
     {
         while (fgetc(wordsList) != '\n')
         ;
     }
     length++;
-    fgets(word, length, wordsList); //Printing picked word to 'word'
+    fgets(word, length, wordsList); /* Printing picked word to 'word' */
 
     close = fclose(wordsList);
 
-    if (close != 0) //Routine file closure check
+    if (close != 0) /* Routine file closure check */
     {
         printf("\nFailure in dictionary closure...Exiting.\n");
     }
@@ -68,25 +75,25 @@ void wordSelection(char word[], uint32_t length, uint32_t MIN, uint32_t MAX) //R
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void readTyping(char *typing) //Replace scanf to avoid fails of repetitive use
+void readTyping(char *typing) /* Replace scanf to avoid fails of repetitive use */
 {
-    fflush(stdin); //Emptying buffer
+
     *typing = getchar();
-    *typing = toupper(*typing); // UPPERCASING
+    *typing = toupper(*typing); /* UPPERCASING */
 
-
-    while (getchar() != '\n'); // Emptying buffer
+    /* I removed buffer cleaning in this function and placed it in main, right after calling readTyping().
+    I don't know exactly the reason why it wasn't working */
 
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void wannaReplay(uint32_t *i) //Simple replay function
+void wannaReplay(uint32_t *i) /* Simple replay function */
 {
     char replay = 0;
 
@@ -106,10 +113,10 @@ void wannaReplay(uint32_t *i) //Simple replay function
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void difficultyChoice(char *word, uint32_t *length, uint32_t *MIN, uint32_t *MAX) //Function to display difficulty menu
+void difficultyChoice(uint32_t *length, uint32_t *MIN, uint32_t *MAX) /* Function to display difficulty menu */
 {
 
     uint32_t difficulty = 0, a = 0;
@@ -122,9 +129,9 @@ void difficultyChoice(char *word, uint32_t *length, uint32_t *MIN, uint32_t *MAX
         printf("3. Difficult.\n");
         printf("\nYour choice : ");
 
-        scanf("%d", &difficulty); //Demande du choix de difficulte
+        scanf("%" SCNu32, &difficulty); /* Asking for difficulty choice */
 
-        switch (difficulty) //Pré-requis à la randomisation du npmbre en fonction de la difficulte
+        switch (difficulty) /* Pré-requis à la randomisation du npmbre en fonction de la difficulte */
         {
         case 1:
             *MAX = 10;
@@ -154,10 +161,10 @@ void difficultyChoice(char *word, uint32_t *length, uint32_t *MIN, uint32_t *MAX
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------------------------------------------- */
 
 
-void rules() //Do I even need to comment this?
+void rules() /* Do I even need to comment this? */
 {
     printf("\nHere are the rules of this popular and simple game :\n");
     printf("The program will chose a word between 4 and 6 characters in uppercase.\n");
@@ -165,4 +172,126 @@ void rules() //Do I even need to comment this?
     printf("You will have to guess the word letter by letter.\n");
     printf("Still, attention ! You only have ten attempts before being hung by the neck !\n");
     printf("Back to menu...\n\n");
+}
+
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+void hanged(uint32_t i)
+{
+
+    /* I know it looks a bit barbaric, but hey, I couldn't think of a better way, so let me know if you have any idea */
+    switch(i)
+    {
+        case 1:
+            printf("\n\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 2:
+            printf("\n\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 3:
+            printf("\n\n");
+            printf("\n");
+            printf("\n");
+            printf("\n");
+            printf("\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 4:
+            printf("\n\t\n");
+            printf("\t\t \n");
+            printf("\t\t \n");
+            printf("\t|\t\n");
+            printf("\t|\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 5:
+            printf("\n\t\n");
+            printf("\t|\t \n");
+            printf("\t|\t \n");
+            printf("\t|\t\n");
+            printf("\t|\t");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 6:
+            printf("\n\t----------\n");
+            printf("\t|\t \n");
+            printf("\t|\t \n");
+            printf("\t|\t\n");
+            printf("\t|\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 7:
+            printf("\n\t----------\n");
+            printf("\t|\t |\n");
+            printf("\t|\t \n");
+            printf("\t|\t\n");
+            printf("\t|\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 8:
+            printf("\n\t----------\n");
+            printf("\t|\t |\n");
+            printf("\t|\t O\n");
+            printf("\t|\t\n");
+            printf("\t|\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 9:
+            printf("\n\t----------\n");
+            printf("\t|\t |\n");
+            printf("\t|\t O\n");
+            printf("\t|\t-+-\n");
+            printf("\t|\t ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            break;
+        case 10:
+            printf("\n\t----------\n");
+            printf("\t|\t |\n");
+            printf("\t|\t O\n");
+            printf("\t|\t-+-\n");
+            printf("\t|\t/ \\ ");
+            printf("\n\t|\t\t");
+            printf("\n\t|\t\t\n");
+            printf("\t------------------\n");
+            printf("\t|\t\t |\n\n");
+            printf("\t===YOU ARE DEAD===\n\n");
+            break;
+    }
 }
