@@ -1,0 +1,6 @@
+# Ignore built executable
+*.exe
+
+# Ignore OSX's crap
+.DS_Store
+
